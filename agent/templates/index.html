@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Leave Agent | BlockMob Labs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #16a34a;
+            --bg: #f8fafc;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            color: #1e293b;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        h2 { color: var(--primary); font-weight: 600; margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;}
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+
+        input, textarea { 
+            width: 100%; padding: 12px; border: 1px solid #cbd5e1; 
+            border-radius: 8px; box-sizing: border-box; font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+        .btn { 
+            padding: 12px 24px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s; font-size: 14px;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn-update { background: var(--secondary); color: white; margin-top: 10px; }
+        .btn-success { background: var(--success); color: white; margin-top: 20px; width: 100%; font-size: 16px; }
+
+        .preview-card { 
+            background: #ffffff; border: 1px solid #e2e8f0; padding: 30px; 
+            border-radius: 12px; margin-top: 30px; position: relative;
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+
+        .preview-header { font-size: 12px; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 15px; font-weight: 600; }
+
+        .app-text { white-space: pre-wrap; color: #334155; font-size: 15px; border-left: 4px solid var(--primary); padding-left: 20px; }
+
+        .feedback-section { margin-top: 25px; background: #f1f5f9; padding: 20px; border-radius: 12px; }
+
+        .success-banner { 
+            background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; 
+            margin-bottom: 20px; text-align: center; border: 1px solid #bbf7d0;
+        }
+
+        a.download-link { color: var(--success); text-decoration: none; font-weight: bold; }
+        a.download-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🚀 AI Leave Agent</h2>
+    
+    {% if success_message %}
+        <div class="success-banner">
+            ✅ {{ success_message }} 
+            <br>
+            <a href="{{ pdf_url }}" class="download-link" target="_blank">Download Your Official PDF Here</a>
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="grid">
+            <div>
+                <label>Full Name</label>
+                <input type="text" name="name" value="{{ name|default:'' }}" placeholder="e.g. Akhtar Abbas" required>
+            </div>
+            <div>
+                <label>Position</label>
+                <input type="text" name="position" value="{{ position|default:'' }}" placeholder="e.g. AI Developer">
+            </div>
+        </div>
+
+        <div class="grid">
+            <div>
+                <label>Company</label>
+                <input type="text" name="company" value="{{ company|default:'' }}" placeholder="e.g. BlockMob Labs">
+            </div>
+            <div>
+                <label>Number of Days</label>
+                <input type="number" name="days" value="{{ days|default:'1' }}">
+            </div>
+        </div>
+
+        <label>Reason for Leave</label>
+        <input type="text" name="reason" value="{{ reason|default:'' }}" placeholder="e.g. Family event in Skardu" style="margin-bottom: 20px;">
+
+        <input type="hidden" name="application_text" value="{{ application_text }}">
+
+        <button type="submit" name="action" value="draft" class="btn btn-primary">
+            {% if application_text %}Regenerate Draft{% else %}Generate Initial Draft{% endif %}
+        </button>
+
+        {% if application_text %}
+            <div class="preview-card">
+                <div class="preview-header">AI-Generated Application Preview</div>
+                <div class="app-text">{{ application_text }}</div>
+            </div>
+
+            <div class="feedback-section">
+                <label><strong>💡 Suggest a change?</strong></label>
+                <input type="text" name="user_feedback" placeholder="e.g. Make it more humble or add emergency contact info...">
+                <button type="submit" name="action" value="draft" class="btn btn-update">Update with Feedback</button>
+                
+                <button type="submit" name="action" value="approve" class="btn btn-success">
+                    Confirm & Generate Final PDF
+                </button>
+            </div>
+        {% endif %}
+    </form>
+
+    {% if error %}
+        <p style="color: #dc2626; margin-top: 20px; text-align: center;">⚠️ {{ error }}</p>
+    {% endif %}
+</div>
+
+</body>
+</html>
